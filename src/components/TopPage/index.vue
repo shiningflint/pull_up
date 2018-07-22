@@ -1,11 +1,12 @@
 <template>
-  <div class="map-container">
-    <p>this is the top page</p>
-  </div>
+  <GmapMap
+    :center="{lat:10, lng:10}"
+    :zoom="7"
+  />
 </template>
 
 <style scoped>
-.map-container {
+.vue-map-container {
   display: flex;
   justify-content: center;
   align-items: center;
