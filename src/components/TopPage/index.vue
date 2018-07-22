@@ -1,9 +1,19 @@
 <template>
   <GmapMap
-    :center="{lat:10, lng:10}"
-    :zoom="7"
+    :center="{lat:35.658725, lng:139.702118}"
+    :zoom="13"
   />
 </template>
+
+<script>
+import { fetchBars } from '../../api'
+
+export default {
+  created () {
+    fetchBars()
+  }
+}
+</script>
 
 <style scoped>
 .vue-map-container {
