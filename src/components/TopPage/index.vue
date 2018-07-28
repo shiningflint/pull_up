@@ -16,35 +16,50 @@
 
 <script>
 /* eslint-disable */
-import { fetchBars, createMarker } from '../../api'
+import { fetchBars, createMarker, updateBar } from '../../api'
 
 export default {
   data () {
     return {
       map: null,
       geocoder: null,
-      markers: []
+      markers: [],
+      bars: []
+    }
+  },
+  methods: {
+    addMarker (map, lat, lng) {
+      const oneMark = createMarker(map, lat, lng)
+      this.markers.push(oneMark)
+    },
+    addBarsToMarker (bars) {
+      bars.map(bar => {
+        if (bar.lat && bar.lng) {
+          this.addMarker(this.map, bar.lat, bar.lng)
+        } else {
+          this.geocoder.geocode({ 'address': bar.address }, (results, status) => {
+            if (status === 'OK') {
+              const barLat = results[0].geometry.location.lat()
+              const barLng = results[0].geometry.location.lng()
+              bar.lat = barLat
+              bar.lng = barLng
+              updateBar(bar.id, bar)
+              this.addMarker(this.map, barLat, barLng)
+            }
+          })
+        }
+      })
     }
   },
   mounted () {
-    // load map & geocoder first, then fetch bars
-    this.$refs.gmap.$mapPromise.then(map => {
+    // fetch bars first then load map
+    fetchBars().then(rawBars => {
+      this.bars = rawBars
+      return this.$refs.gmap.$mapPromise
+    }).then(map => {
       this.map = map,
       this.geocoder = new google.maps.Geocoder()
-      return fetchBars()
-    }).then(rawBars => {
-      rawBars.map(bar => {
-        if (bar.lat && bar.lng) {
-          const oneMark = createMarker(this.map, bar.lat, bar.lng)
-          this.markers.push(oneMark)
-        }
-      })
-
-      // geocoder.geocode({ 'address': '中野区本町2-51-9' }, (results, status) => {
-      //   console.log(results)
-      //   console.log(status)
-      //   console.log(results[0].geometry.location.lat())
-      // })
+      this.addBarsToMarker(this.bars)
     }).catch(error => console.error('Maps or fetching bars failing, maybe it\'s the frikkin internet', error))
   }
 }

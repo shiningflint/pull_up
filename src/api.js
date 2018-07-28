@@ -5,10 +5,16 @@ export function fetchBars () {
     .then(querySnapshot => {
       let resultArray = []
       querySnapshot.forEach(doc => {
-        resultArray.push(doc.data())
+        const docData = doc.data()
+        docData.id = doc.id
+        resultArray.push(docData)
       })
       return resultArray
     })
+}
+
+export function updateBar (barID, barObject) {
+  return db.collection('bars').doc(barID).set(barObject)
 }
 
 /**
