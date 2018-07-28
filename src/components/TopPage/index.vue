@@ -15,7 +15,6 @@
 </template>
 
 <script>
-/* eslint-disable */
 import { fetchBars, createMarker, updateBar } from '../../api'
 
 export default {
@@ -57,9 +56,9 @@ export default {
       this.bars = rawBars
       return this.$refs.gmap.$mapPromise
     }).then(map => {
-      this.map = map,
+      this.map = map, // eslint-disable-next-line
       this.geocoder = new google.maps.Geocoder()
-      this.addBarsToMarker(this.bars)
+      this.addBarsToMarker(this.bars) // eslint-disable-next-line
     }).catch(error => console.error('Maps or fetching bars failing, maybe it\'s the frikkin internet', error))
   }
 }
