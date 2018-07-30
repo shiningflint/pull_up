@@ -15,7 +15,13 @@
 </template>
 
 <script>
-import { fetchBars, createMarker, updateBar } from '../../api'
+import {
+  fetchBars,
+  createMarker,
+  updateBar,
+  getBarArea,
+  geocodeAddress
+} from '../../api'
 
 export default {
   data () {
@@ -36,15 +42,14 @@ export default {
         if (bar.lat && bar.lng) {
           this.addMarker(this.map, bar.lat, bar.lng)
         } else {
-          this.geocoder.geocode({ 'address': bar.address }, (results, status) => {
-            if (status === 'OK') {
-              const barLat = results[0].geometry.location.lat()
-              const barLng = results[0].geometry.location.lng()
-              bar.lat = barLat
-              bar.lng = barLng
+          getBarArea(bar.area_id).then(area => {
+            const address = `${area} ${bar.address}`
+            geocodeAddress(this.geocoder, address).then(({ lat, lng }) => {
+              bar.lat = lat
+              bar.lng = lng
               updateBar(bar.id, bar)
-              this.addMarker(this.map, barLat, barLng)
-            }
+              this.addMarker(this.map, lat, lng)
+            })
           })
         }
       })
