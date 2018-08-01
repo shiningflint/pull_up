@@ -1,13 +1,33 @@
 const GoogleSpreadsheet = require('google-spreadsheet')
-const googleSpreadsheetKey = require('../../keys.js').googleSpreadsheetKey
+const GoogleSpreadsheetKey = require('../../keys.js').googleSpreadsheetKey
 
-const doc = new GoogleSpreadsheet(googleSpreadsheetKey)
+const doc = new GoogleSpreadsheet(GoogleSpreadsheetKey)
 
-console.log(doc)
+const WorkSheets = {
+  chuoku: {
+    worksheetTitle: 'Chuo-ku 中央区',
+    name: '中央区'
+  }
+}
 
-doc.getInfo(function(err, info) {
-  console.log('got err', err)
-  console.log('got some info', info)
-})
+const selectedSheet = WorkSheets.chuoku
 
-console.log('download bananas from drive and insert to potatoes')
+function gotSheets (err, info) {
+  // console.log('got err', err)
+  // console.log('got some info', info)
+  info.worksheets.map(worksheet => {
+    if (worksheet.title === selectedSheet.worksheetTitle) {
+      console.log('save to firebase', worksheet)
+    }
+  })
+}
+
+function getSheetInfo (doc) {
+  doc.getInfo(gotSheets)
+}
+
+function init () {
+  getSheetInfo(doc)
+}
+
+init()
