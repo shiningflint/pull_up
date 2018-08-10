@@ -37,10 +37,20 @@ function getSheetInfo (doc, worksheetTitle) {
   })
 }
 
-function init () {
-  getSheetInfo(doc, selectedSheet.worksheetTitle).then(worksheet => {
-    console.log('bananas', worksheet)
+function getSheetRows (worksheet) {
+  return new Promise(resolve => {
+    worksheet.getRows((err, rows) => {
+      resolve(rows)
+    })
   })
+}
+
+function init () {
+  getSheetInfo(doc, selectedSheet.worksheetTitle)
+    .then(worksheet => getSheetRows(worksheet))
+    .then(rows => {
+      console.log(rows)
+    })
   // db.collection('bars').add({
   //   bananas: 'pisang',
   //   potatoes: 'kentang'
