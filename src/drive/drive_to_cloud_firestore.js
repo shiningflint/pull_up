@@ -18,14 +18,8 @@ db.settings(settings)
 
 const doc = new GoogleSpreadsheet(GoogleSpreadsheetKey)
 
-const WorkSheets = {
-  chuoku: {
-    worksheetTitle: 'Chuo-ku 中央区',
-    name: '中央区'
-  }
-}
-
-const selectedSheet = WorkSheets.chuoku
+const workSheetTitle = process.argv[2]
+const areaID = process.argv[3]
 
 function getSheetInfo (doc, worksheetTitle) {
   return new Promise(resolve => {
@@ -45,17 +39,29 @@ function getSheetRows (worksheet) {
   })
 }
 
+function barFormatRows (rows) {
+  return rows.map(row => {
+    return {
+      address: row.address === '' ? null : row.address,
+      lat: row.lat === '' ? null : parseFloat(row.lat),
+      lng: row.lng === '' ? null : parseFloat(row.lng),
+      image: row.image === '' ? null : row.image
+    }
+  })
+}
+
 function init () {
-  getSheetInfo(doc, selectedSheet.worksheetTitle)
+  getSheetInfo(doc, workSheetTitle)
     .then(worksheet => getSheetRows(worksheet))
     .then(rows => {
-      console.log(rows)
+      const bars = barFormatRows(rows)
+      const areaBars = bars.map(bar => {
+        bar['area_id'] = areaID
+        return bar
+      })
+
+      areaBars.map(areaBar => db.collection('bars').add(areaBar))
     })
-  // db.collection('bars').add({
-  //   bananas: 'pisang',
-  //   potatoes: 'kentang'
-  // })
-  return
 }
 
 init()
